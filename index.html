@@ -1,0 +1,115 @@
+<!doctype html>
+
+<html lang="en">
+<!--
+    @Wietze, (c) 2020
+    Licenced under GPLv3
+-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+    <title>PowerShell: ConvertFrom-SecureString decoder</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+
+    <h1>PowerShell: ConvertFrom-SecureString decoder</h1>
+    <div class="container">
+        <div>
+            <fieldset>
+                <legend>Input</legend>
+                <div class="key_bar">
+                    <input type="text" id="key"
+                        placeholder="Enter the key used in decimal format, e.g. (3,4,2,3,56,34,254,222,1,1,2,23,42,54,33,233,1,34,2,7,6,5,35,43)"
+                        autocomplete="off" />
+
+                    <div class="question-mark">
+                        <a title="Enter the key in decimal form, e.g.:
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    $key = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+A regex is used to extract the key, just paste your key and it'll probably be accepted.
+Make sure you are using a valid key, i.e. 128, 192 or 256 bit.">?</a></div>
+                </div>
+                <textarea id="encoded" placeholder="Enter the Base64-encoded output of ConvertFrom-SecureString"
+                    autocomplete="off"></textarea>
+                <input type="button" value="Convert" id="submit" />
+            </fieldset>
+            <fieldset>
+                <legend>Result</legend>
+                <textarea id="result" readonly="readonly" placeholder="The decoded data will appear here"
+                    autocomplete="off"></textarea>
+            </fieldset>
+        </div>
+        <div>
+            <fieldset class="readme">
+                <legend>Readme</legend>
+                <h3>🔐 ConvertTo/From-SecureString</h3>
+                <p>PowerShell provides the <code>ConvertTo-SecureString</code>
+                    cmdlet [<a
+                        href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertto-securestring"
+                        title="Microsoft Docs: ConvertTo-SecureString">1</a>] as a means to convert (sensitive) plain
+                    text
+                    data to a <code>SecureString</code> object. <code>SecureString</code> objects are encrypted in
+                    memory
+                    and should reduce the risks attached to the use of plaintext passwords in PowerShell scripts [<a
+                        href="https://social.technet.microsoft.com/wiki/contents/articles/4546.working-with-passwords-secure-strings-and-credentials-in-windows-powershell.aspx"
+                        title="Technet: Working with Passwords, Secure Strings and Credentials in Windows PowerShell">2</a>].
+                    The <code>ConvertFrom-SecureString</code> cmdlet [<a
+                        href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertfrom-securestring"
+                        title="Microsoft Docs: ConvertFrom-SecureString">3</a>] can be used to serialize such objects.
+                    If
+                    the <code>-Key</code> argument is used, the <code>SecureString</code> will be encrypted with the
+                    supplied key instead of the user's profile key. This is a way of making the serialized
+                    <code>SecureString</code> object usable across different environments.
+
+                    <h3>👾 Obfuscation technique</h3>
+                    <p>The <code>ConvertFrom-SecureString</code> cmdlet can be (and has been) used for PowerShell
+                        obfuscation [<a
+                            href="https://www.sans.org/cyber-security-summit/archives/file/summit-archive-1492186586.pdf"
+                            title="Invoke-Obfuscation: PowerShell Obfuscation Techniques & How To Detect Them (by @danielhbohannon)">4</a>,
+                        <a href="https://www.hybrid-analysis.com/sample/e6b92d2b0a55c2253f1e89d601d5c3262df3b30b3c6fd31b04ed7260bbb835b1"
+                            title="Hybrid Analysis: Analysis of sYIMxiWtKOLugl.ps1">5</a>].
+                        Attackers encode a malicious payload on their machine using
+                        <code>ConvertFrom-SecureString</code> with a fixed key. Decoding this on the victim's machine is
+                        easy because it relies on a built-in PowerShell feature, whilst it makes detection and analysis
+                        harder.</p>
+
+                    <h3>❓ About this page</h3>
+                    <p>This is a simple web app for decoding <code>ConvertFrom-SecureString</code> outputs. The code is
+                        minimalist by design
+                        (no JavaScript frameworks are used, just pure JavaScript) and does not rely on external
+                        resources (and
+                        can therefore be used offline). Please <a
+                            href="https://github.com/wietze/powershell-securestring-decoder">contribute</a> on GitHub if
+                        you want to help
+                        improve
+                        this page.</p>
+
+                    <h3>▶️ Example</h3>
+                    <p class="nomargin">Entering the following two lines in PowerShell:</p>
+                    <pre>$Key = (3,4,2,3,56,34,254,222,1,1,2,23,42,54,33,233,1,34,2,7,6,5,35,43)
+ConvertFrom-SecureString (ConvertTo-SecureString "Never gonna give you up, never gonna let you down" -AsPlainText -Force) -Key $Key</pre>
+                    <p class="nomargin"><a
+                            title="Because the initialization vector (IV) will be different on every ConvertFrom-SecureString execution, the output is different every time it is run.">Might*</a>
+                        result in:</p>
+                    <pre>76492d1116743f0423413b16050a5345MgB8AFIAZwBiAHQAZAA3ADYARgBSAEEAUgBoADgAQgBYADkAZgA4ADAAbgBRAFEAPQA9AHwAMgAwADEAZAA5AGQANwBhAGYAZABkAGYAYQAzADIAYQAwADUAMgBmADAAMgA3AGQAMQBhADAAMgBjAGIAYQBmADQAYwA1AGMANABlAGQAZAAyADUAYgA5AGEAYwAxAGIAYgBjAGUAZQAzAGEAYwA2ADQANgA4ADAAYwAwADAAMwBiAGEAMQAwADIAMgA2ADcAZgBmADEAOABlADQAZABkADkANwBmAGQAMgBjADYAMABlADUAZQA0ADIAOQAyADEAYQA1ADEANQA2AGEAZgA0ADQAYQBhADcANgBmADUAMQA5AGQAOQA1ADMANQAwADUAMgBiADMAMAAzAGYAMgA4AGIAYwAwAGEAMAA1AGQAZQAwADQAMgBhADEAMAAzADgAYQBmADcAZgAxAGUAMQA0ADMAMgBiADAANgBkADMANQBhADgAMgAzADkAYQA2ADgAMQBiAGQAMQA2AGIAMQAzAGIANwBjAGIAYgA2ADUANQBiAGEAOAA0ADgAMQA4ADkAZgA4ADcAYQA5AGMANwA3AGIAZABlAGEAYQA0ADgAMABiADAANgAxADAAOAA3ADQAYwBjADQAMwA0ADMANQAwAA==</pre>
+                    <p class="nomargin">Entering the output together with the key on this page will successfully
+                        decode the ciphertext.
+                        <a href="#" id="demo">Click here</a> to try it yourself.</p>
+
+                    <h3>💡 Acknowledgements</h3>
+                    <p>Thanks to Richard Moore for aes-js [<a href="https://github.com/ricmoo/aes-js">6</a>], a
+                        JavaScript implementation of AES.</p>
+            </fieldset>
+        </div>
+    </div>
+
+    <script src="js/aes-js.3.1.2.min.js"></script>
+    <script src="js/securestring.js"></script>
+</body>
+
+</html>
