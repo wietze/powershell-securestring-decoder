@@ -53,6 +53,8 @@ document.getElementById('demo').addEventListener("click", function (e) {
     document.getElementById('encoded').value = "76492d1116743f0423413b16050a5345MgB8AFIAZwBiAHQAZAA3ADYARgBSAEEAUgBoADgAQgBYADkAZgA4ADAAbgBRAFEAPQA9AHwAMgAwADEAZAA5AGQANwBhAGYAZABkAGYAYQAzADIAYQAwADUAMgBmADAAMgA3AGQAMQBhADAAMgBjAGIAYQBmADQAYwA1AGMANABlAGQAZAAyADUAYgA5AGEAYwAxAGIAYgBjAGUAZQAzAGEAYwA2ADQANgA4ADAAYwAwADAAMwBiAGEAMQAwADIAMgA2ADcAZgBmADEAOABlADQAZABkADkANwBmAGQAMgBjADYAMABlADUAZQA0ADIAOQAyADEAYQA1ADEANQA2AGEAZgA0ADQAYQBhADcANgBmADUAMQA5AGQAOQA1ADMANQAwADUAMgBiADMAMAAzAGYAMgA4AGIAYwAwAGEAMAA1AGQAZQAwADQAMgBhADEAMAAzADgAYQBmADcAZgAxAGUAMQA0ADMAMgBiADAANgBkADMANQBhADgAMgAzADkAYQA2ADgAMQBiAGQAMQA2AGIAMQAzAGIANwBjAGIAYgA2ADUANQBiAGEAOAA0ADgAMQA4ADkAZgA4ADcAYQA5AGMANwA3AGIAZABlAGEAYQA0ADgAMABiADAANgAxADAAOAA3ADQAYwBjADQAMwA0ADMANQAwAA==";
 }, false);
 
+const range = (start, stop) => Array.from({ length: (stop - start) + 1}, (_, i) => start + i);
+
 document.getElementById('submit').addEventListener("click", function (e) {
     var input_missing = document.getElementById('encoded').required = document.getElementById('encoded').value.length == 0;
     var key_missing = document.getElementById('key').required = document.getElementById('key').value.length == 0;
@@ -62,7 +64,13 @@ document.getElementById('submit').addEventListener("click", function (e) {
         alert("No " + alert_msg + " given. Please check your inputs or check the example in the readme on the right.")
     } else {
         document.getElementById('result').value = '';
-        key = document.getElementById('key').value.match(/\d+/g).map(str => parseInt(str, 10));
+        input_key = document.getElementById('key').value;
+        if (input_key.includes('..')){
+            key_parts = input_key.match(/(\d+)..(\d+)/i);
+            key = range(parseInt(key_parts[1], 10), parseInt(key_parts[2], 10))
+        }
+        else
+            key = input_key.match(/\d+/g).map(str => parseInt(str, 10));
         console.log("A " + (key.length * 8) + " bit key was found")
         if (key.length != 16 && key.length != 24 && key.length != 32) {
             alert('No valid key (128, 192 or 256 bit) was given. Please check your encryption key.')
