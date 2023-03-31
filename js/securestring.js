@@ -53,7 +53,11 @@ document.getElementById('demo').addEventListener("click", function (e) {
     document.getElementById('encoded').value = "76492d1116743f0423413b16050a5345MgB8AFIAZwBiAHQAZAA3ADYARgBSAEEAUgBoADgAQgBYADkAZgA4ADAAbgBRAFEAPQA9AHwAMgAwADEAZAA5AGQANwBhAGYAZABkAGYAYQAzADIAYQAwADUAMgBmADAAMgA3AGQAMQBhADAAMgBjAGIAYQBmADQAYwA1AGMANABlAGQAZAAyADUAYgA5AGEAYwAxAGIAYgBjAGUAZQAzAGEAYwA2ADQANgA4ADAAYwAwADAAMwBiAGEAMQAwADIAMgA2ADcAZgBmADEAOABlADQAZABkADkANwBmAGQAMgBjADYAMABlADUAZQA0ADIAOQAyADEAYQA1ADEANQA2AGEAZgA0ADQAYQBhADcANgBmADUAMQA5AGQAOQA1ADMANQAwADUAMgBiADMAMAAzAGYAMgA4AGIAYwAwAGEAMAA1AGQAZQAwADQAMgBhADEAMAAzADgAYQBmADcAZgAxAGUAMQA0ADMAMgBiADAANgBkADMANQBhADgAMgAzADkAYQA2ADgAMQBiAGQAMQA2AGIAMQAzAGIANwBjAGIAYgA2ADUANQBiAGEAOAA0ADgAMQA4ADkAZgA4ADcAYQA5AGMANwA3AGIAZABlAGEAYQA0ADgAMABiADAANgAxADAAOAA3ADQAYwBjADQAMwA0ADMANQAwAA==";
 }, false);
 
-const range = (start, stop) => Array.from({ length: (stop - start) + 1}, (_, i) => start + i);
+function range(start, end) {
+  step = start > end ? -1 : 1;
+  const len = Math.floor((end - start) / step) + 1
+  return Array(len).fill().map((_, idx) => start + (idx * step))
+}
 
 document.getElementById('submit').addEventListener("click", function (e) {
     var input_missing = document.getElementById('encoded').required = document.getElementById('encoded').value.length == 0;
